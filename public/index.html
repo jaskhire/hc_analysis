@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HomeIQ — Should I Buy or Rent?</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg:      #f7f6f2;
+  --bg2:     #ffffff;
+  --bg3:     #f0ede8;
+  --border:  #e2ddd8;
+  --border2: #c8c2bc;
+  --text:    #1a1714;
+  --text2:   #4a4540;
+  --text3:   #8a837c;
+  --accent:  #2d6a4f;
+  --accent2: #40916c;
+  --accent3: #d8f3dc;
+  --blue:    #1a56db;
+  --blue2:   #e8f0fe;
+  --green:   #1e8a4c;
+  --green2:  #d4f5e2;
+  --yellow:  #b45309;
+  --yellow2: #fef3c7;
+  --red:     #c0392b;
+  --red2:    #fee2e2;
+  --purple:  #6c3fc5;
+  --purple2: #ede9fe;
+  --shadow:  0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+  --shadow2: 0 2px 8px rgba(0,0,0,0.1), 0 8px 32px rgba(0,0,0,0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; font-size: 15px; line-height: 1.6; }
+
+/* INTRO */
+.intro { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 48px 24px; background: linear-gradient(160deg, #f7f6f2 0%, #edf7f1 50%, #f7f6f2 100%); }
+.intro-card { max-width: 640px; width: 100%; text-align: center; }
+.logo { font-family: 'Playfair Display', serif; font-size: 52px; color: var(--text); margin-bottom: 4px; letter-spacing: -1px; }
+.logo span { color: var(--accent); }
+.tagline { font-size: 12px; letter-spacing: 5px; color: var(--text3); text-transform: uppercase; margin-bottom: 32px; font-family: 'JetBrains Mono', monospace; }
+.intro-desc { font-size: 17px; color: var(--text2); line-height: 1.8; margin-bottom: 40px; max-width: 500px; margin-left: auto; margin-right: auto; }
+.feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 44px; }
+.feature-item { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 18px 14px; box-shadow: var(--shadow); }
+.feature-icon { font-size: 24px; margin-bottom: 8px; }
+.feature-label { font-size: 12px; color: var(--text2); line-height: 1.5; font-weight: 500; }
+.start-btn { background: var(--accent); color: #fff; border: none; border-radius: 12px; padding: 17px 44px; font-size: 16px; font-family: 'Inter', sans-serif; cursor: pointer; font-weight: 600; letter-spacing: 0.2px; box-shadow: 0 4px 14px rgba(45,106,79,0.35); transition: all 0.2s; }
+.start-btn:hover { background: var(--accent2); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(45,106,79,0.4); }
+.disclaimer { font-size: 12px; color: var(--text3); margin-top: 16px; font-family: 'JetBrains Mono', monospace; }
+
+/* QUESTIONNAIRE */
+.q-shell { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; background: var(--bg); }
+.q-header { width: 100%; max-width: 620px; margin-bottom: 20px; }
+.q-progress-track { height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
+.q-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 4px; transition: width 0.4s cubic-bezier(0.4,0,0.2,1); }
+.q-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+.q-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 40px; width: 100%; max-width: 620px; box-shadow: var(--shadow2); }
+.q-block { font-size: 11px; letter-spacing: 4px; color: var(--accent); text-transform: uppercase; margin-bottom: 14px; font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+.q-question { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--text); line-height: 1.4; margin-bottom: 8px; }
+.q-hint { font-size: 13px; color: var(--text3); margin-bottom: 24px; font-style: italic; }
+.q-options { display: flex; flex-direction: column; gap: 9px; margin-bottom: 28px; }
+.q-opt { padding: 13px 18px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--bg); color: var(--text2); text-align: left; cursor: pointer; font-size: 14px; font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 12px; transition: all 0.15s; font-weight: 400; }
+.q-opt:hover { border-color: var(--accent2); color: var(--text); background: var(--accent3); }
+.q-opt.sel { border-color: var(--accent); background: var(--accent3); color: var(--accent); font-weight: 500; }
+.q-check { width: 18px; height: 18px; flex-shrink: 0; border: 2px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; transition: all 0.15s; background: var(--bg2); }
+.q-check.sel { border-color: var(--accent); background: var(--accent); }
+.q-nav { display: flex; gap: 10px; }
+.btn-next { flex: 1; background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 15px; font-size: 15px; font-family: 'Inter', sans-serif; cursor: pointer; font-weight: 600; transition: all 0.15s; box-shadow: 0 3px 10px rgba(45,106,79,0.25); }
+.btn-next:hover { background: var(--accent2); transform: translateY(-1px); }
+.btn-next:disabled { opacity: 0.3; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-back { background: transparent; color: var(--text3); border: 1.5px solid var(--border); border-radius: 10px; padding: 15px 22px; font-size: 14px; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.15s; }
+.btn-back:hover { border-color: var(--border2); color: var(--text2); }
+.multi-tag { font-size: 11px; color: var(--text3); margin-bottom: 18px; font-family: 'JetBrains Mono', monospace; letter-spacing: 2px; text-transform: uppercase; }
+
+/* RESULTS */
+.results { max-width: 880px; margin: 0 auto; padding: 48px 24px 80px; }
+.results-header { text-align: center; margin-bottom: 36px; padding: 44px 36px; background: var(--bg2); border: 1.5px solid var(--border); border-radius: 24px; position: relative; overflow: hidden; box-shadow: var(--shadow2); }
+.verdict-emoji { font-size: 60px; margin-bottom: 14px; }
+.verdict-tag { font-size: 11px; letter-spacing: 5px; color: var(--text3); text-transform: uppercase; font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; }
+.verdict-title { font-family: 'Playfair Display', serif; font-size: 38px; margin-bottom: 14px; line-height: 1.2; }
+.verdict-subtitle { font-size: 15px; color: var(--text2); line-height: 1.75; max-width: 540px; margin: 0 auto; }
+.confidence-bar { display: flex; align-items: center; gap: 14px; justify-content: center; margin-top: 24px; }
+.confidence-track { width: 180px; height: 8px; background: var(--bg3); border-radius: 8px; overflow: hidden; }
+.confidence-fill { height: 100%; border-radius: 8px; transition: width 1s ease; }
+.confidence-label { font-size: 12px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+
+.section-title { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--text); margin-bottom: 16px; }
+.section-label { font-size: 11px; letter-spacing: 4px; color: var(--text3); text-transform: uppercase; font-family: 'JetBrains Mono', monospace; margin-bottom: 16px; display: block; }
+
+/* SCORE CARDS */
+.score-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 24px; }
+.score-card { background: var(--bg2); border: 1.5px solid var(--border); border-radius: 16px; padding: 22px; box-shadow: var(--shadow); }
+.score-card-label { font-size: 11px; letter-spacing: 3px; color: var(--text3); text-transform: uppercase; font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; }
+.score-card-value { font-size: 42px; font-weight: 700; font-family: 'JetBrains Mono', monospace; margin-bottom: 6px; line-height: 1; }
+.score-card-note { font-size: 13px; color: var(--text3); line-height: 1.5; }
+.score-card-bar { height: 5px; background: var(--bg3); border-radius: 5px; margin-top: 14px; overflow: hidden; }
+.score-card-fill { height: 100%; border-radius: 5px; }
+
+/* CHARTS */
+.chart-section { background: var(--bg2); border: 1.5px solid var(--border); border-radius: 20px; padding: 28px; margin-bottom: 20px; box-shadow: var(--shadow); }
+.chart-tabs { display: flex; gap: 6px; margin-bottom: 22px; flex-wrap: wrap; }
+.chart-tab { padding: 8px 16px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--bg); color: var(--text3); font-size: 13px; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 500; transition: all 0.15s; }
+.chart-tab:hover { border-color: var(--accent2); color: var(--accent); }
+.chart-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+canvas { max-height: 300px; }
+
+/* LOAN TABLE */
+.loan-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.loan-table th { padding: 11px 14px; text-align: left; font-size: 10px; letter-spacing: 2px; color: var(--text3); text-transform: uppercase; font-family: 'JetBrains Mono', monospace; font-weight: 500; border-bottom: 2px solid var(--border); }
+.loan-table td { padding: 13px 14px; border-bottom: 1px solid var(--border); color: var(--text2); font-size: 13px; }
+.loan-table tr:last-child td { border-bottom: none; }
+.loan-table tr.highlight td { background: var(--accent3); color: var(--text); font-weight: 500; }
+.loan-badge { font-size: 11px; padding: 3px 9px; border-radius: 5px; font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+
+/* PSYCHOLOGY */
+.psych-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+.psych-card { background: var(--bg2); border: 1.5px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); }
+.psych-label { font-size: 11px; color: var(--text3); margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; letter-spacing: 2px; text-transform: uppercase; font-weight: 500; }
+.psych-meter { height: 10px; background: var(--bg3); border-radius: 10px; overflow: hidden; margin-bottom: 8px; }
+.psych-fill { height: 100%; border-radius: 10px; transition: width 1.2s ease; }
+.psych-score { font-size: 28px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.psych-desc { font-size: 13px; color: var(--text3); line-height: 1.55; margin-top: 8px; }
+
+/* SCENARIOS */
+.scenario-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.scenario-tab { padding: 9px 18px; border-radius: 9px; border: 1.5px solid var(--border); background: var(--bg); color: var(--text3); font-size: 13px; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 500; transition: all 0.15s; }
+.scenario-tab:hover { border-color: var(--accent2); color: var(--accent); }
+.scenario-tab.active { border-color: var(--accent); color: var(--accent); background: var(--accent3); font-weight: 600; }
+.scenario-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.scenario-card { background: var(--bg3); border: 1.5px solid var(--border); border-radius: 14px; padding: 20px; }
+.scenario-year { font-size: 10px; letter-spacing: 3px; color: var(--text3); text-transform: uppercase; font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; font-weight: 500; }
+.scenario-val { font-size: 22px; font-weight: 700; font-family: 'JetBrains Mono', monospace; margin-bottom: 4px; color: var(--text); }
+.scenario-sub { font-size: 12px; color: var(--text3); line-height: 1.4; }
+
+/* ANALYSIS BLOCKS */
+.analysis-block { background: var(--bg2); border: 1.5px solid var(--border); border-radius: 16px; padding: 26px; margin-bottom: 16px; box-shadow: var(--shadow); }
+.analysis-block h3 { font-family: 'Playfair Display', serif; font-size: 19px; color: var(--text); margin-bottom: 14px; }
+.analysis-block p { font-size: 14px; color: var(--text2); line-height: 1.8; margin-bottom: 12px; }
+.analysis-block p:last-child { margin-bottom: 0; }
+.analysis-block.warn { border-color: #f0b429; background: #fffbeb; }
+.analysis-block.good { border-color: #34d399; background: #f0fdf8; }
+.analysis-block.bad  { border-color: #f87171; background: #fff5f5; }
+
+/* MARKET CARDS */
+.market-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+.market-card { background: var(--bg2); border: 1.5px solid var(--border); border-radius: 14px; padding: 18px; box-shadow: var(--shadow); }
+.market-label { font-size: 10px; letter-spacing: 3px; color: var(--text3); text-transform: uppercase; font-family: 'JetBrains Mono', monospace; margin-bottom: 8px; font-weight: 500; }
+.market-value { font-size: 24px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text); }
+.market-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
+
+/* RECOMMENDATIONS */
+.reco-list { display: flex; flex-direction: column; gap: 12px; }
+.reco-item { display: flex; gap: 16px; align-items: flex-start; background: var(--bg2); border: 1.5px solid var(--border); border-radius: 14px; padding: 18px; box-shadow: var(--shadow); transition: border-color 0.15s; }
+.reco-item:hover { border-color: var(--accent2); }
+.reco-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+.reco-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 5px; }
+.reco-text { font-size: 13px; color: var(--text3); line-height: 1.6; }
+
+.divider { height: 1px; background: var(--border); margin: 36px 0; }
+.reset-btn { width: 100%; background: transparent; color: var(--text3); border: 1.5px solid var(--border); border-radius: 12px; padding: 15px; font-size: 14px; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.reset-btn:hover { border-color: var(--accent2); color: var(--accent); background: var(--accent3); }
+.foot-disc { font-size: 12px; color: var(--text3); text-align: center; margin-top: 20px; line-height: 1.7; font-family: 'JetBrains Mono', monospace; }
+
+/* COLORS FOR SIGNALS */
+.c-good   { color: var(--green) !important; }
+.c-warn   { color: var(--yellow) !important; }
+.c-bad    { color: var(--red) !important; }
+.c-accent { color: var(--purple) !important; }
+.bg-good  { background: var(--green2); }
+.bg-warn  { background: var(--yellow2); }
+.bg-bad   { background: var(--red2); }
+
+@media (max-width: 600px) {
+  .feature-grid { grid-template-columns: 1fr 1fr; }
+  .score-grid { grid-template-columns: 1fr; }
+  .psych-grid { grid-template-columns: 1fr; }
+  .scenario-grid { grid-template-columns: 1fr; }
+  .market-grid { grid-template-columns: 1fr 1fr; }
+  .logo { font-size: 38px; }
+  .q-card { padding: 28px 20px; }
+  .q-question { font-size: 20px; }
+  .verdict-title { font-size: 28px; }
+  .results { padding: 28px 16px 60px; }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════
+
+// Metro market data: [avg_price, ptr, annual_appreciation, avg_rent_3br, market_trend]
+const METRO_DATA = {
+  "Bay Area (SF/San Jose/Oakland)":     { price:1450000, ptr:28.5, appr:4.2, rent:4800, trend:"flat", tier:"Premium" },
+  "Seattle / Bellevue":                  { price:920000,  ptr:24.1, appr:3.8, rent:3200, trend:"cooling", tier:"High" },
+  "New York / NJ":                       { price:780000,  ptr:22.4, appr:3.5, rent:3600, trend:"stable", tier:"High" },
+  "Los Angeles / OC":                    { price:950000,  ptr:26.2, appr:4.0, rent:3800, trend:"cooling", tier:"High" },
+  "Austin / Dallas":                     { price:520000,  ptr:19.8, appr:2.8, rent:2400, trend:"cooling", tier:"Mid" },
+  "Chicago":                             { price:380000,  ptr:16.4, appr:2.5, rent:2200, trend:"stable", tier:"Mid" },
+  "Boston":                              { price:820000,  ptr:23.8, appr:3.6, rent:3500, trend:"stable", tier:"High" },
+  "Denver / Colorado":                   { price:620000,  ptr:21.3, appr:3.0, rent:2800, trend:"cooling", tier:"Mid" },
+  "Miami / South Florida":               { price:680000,  ptr:22.1, appr:3.8, rent:3200, trend:"stable", tier:"High" },
+  "Phoenix / Scottsdale":                { price:480000,  ptr:18.9, appr:2.6, rent:2400, trend:"cooling", tier:"Mid" },
+  "Portland / Oregon":                   { price:580000,  ptr:20.4, appr:2.8, rent:2700, trend:"stable", tier:"Mid" },
+  "Minneapolis / Twin Cities":           { price:380000,  ptr:15.8, appr:2.9, rent:2100, trend:"stable", tier:"Mid" },
+  "Raleigh / Durham NC":                 { price:460000,  ptr:17.2, appr:3.4, rent:2300, trend:"growing", tier:"Mid" },
+  "Nashville TN":                        { price:520000,  ptr:19.1, appr:3.2, rent:2600, trend:"stable", tier:"Mid" },
+  "Schenectady / Albany NY":             { price:320000,  ptr:14.2, appr:3.8, rent:2000, trend:"growing", tier:"Affordable" },
+  "Puyallup / Tacoma WA":               { price:580000,  ptr:19.4, appr:2.2, rent:2600, trend:"flat", tier:"Mid" },
+  "Cleveland / Columbus OH":             { price:200000,  ptr:11.8, appr:4.1, rent:1600, trend:"growing", tier:"Affordable" },
+  "Indianapolis IN":                     { price:280000,  ptr:13.4, appr:3.5, rent:1800, trend:"growing", tier:"Affordable" },
+  "Pittsburgh PA":                       { price:260000,  ptr:12.9, appr:3.2, rent:1800, trend:"stable", tier:"Affordable" },
+  "Other US metro":                      { price:550000,  ptr:18.0, appr:3.0, rent:2500, trend:"stable", tier:"Mid" },
+};
+
+// Loan type data: [rate_offset, pros, cons]
+const LOAN_TYPES = {
+  "30-year fixed":         { rate: 0.000, desc: "Stable payment forever", risk: "low" },
+  "15-year fixed":         { rate: -0.006, desc: "Pay off faster, lower rate", risk: "low" },
+  "7/1 ARM":               { rate: -0.012, desc: "Lower initial rate, resets at year 7", risk: "medium" },
+  "5/1 ARM":               { rate: -0.015, desc: "Lowest initial rate, resets at year 5", risk: "high" },
+  "FHA (3.5% down)":       { rate: 0.005, desc: "Low down payment, mortgage insurance", risk: "medium" },
+  "VA Loan (0% down)":     { rate: -0.004, desc: "Zero down for veterans", risk: "low" },
+  "Jumbo (>$766K)":        { rate: 0.003, desc: "For high-value homes, stricter requirements", risk: "medium" },
+  "Not sure yet":          { rate: 0.000, desc: "Assumed 30-year fixed", risk: "low" },
+};
+
+const BASE_RATE = 0.0668; // Current 30yr fixed approximate
+
+const STEPS = [
+  // BLOCK 1: Location
+  { id:"metro", block:"Location & Market", question:"Which metro are you considering buying in?", type:"single", hint:"This determines market data, price-to-rent ratios, and appreciation forecasts.",
+    options: Object.keys(METRO_DATA) },
+
+  { id:"zip_price", block:"Location & Market", question:"What is the approximate target purchase price?", type:"single", hint:"We'll use this for exact calculations rather than metro averages.",
+    options:["Under $300K","$300K–$500K","$500K–$700K","$700K–$900K","$900K–$1.2M","$1.2M–$1.6M","Over $1.6M","Use metro average"] },
+
+  // BLOCK 2: Loan
+  { id:"loan_type", block:"Loan & Financing", question:"What loan type are you considering?", type:"single", hint:"Different loan structures have dramatically different long-term costs.",
+    options: Object.keys(LOAN_TYPES) },
+
+  { id:"rate_scenario", block:"Loan & Financing", question:"What interest rate are you expecting?", type:"single", hint:"Current 30yr fixed is approximately 6.7%. Your credit score affects this.",
+    options:["Below 5.5% (excellent credit / market drop)","5.5%–6.0%","6.0%–6.5%","6.5%–7.0% (current market)","7.0%–7.5%","Above 7.5%","Not sure — use current rates"] },
+
+  { id:"down_payment", block:"Loan & Financing", question:"How much can you put down?", type:"single", hint:"Down payment affects your monthly payment, PMI, and capital tied up.",
+    options:["Less than 5% (FHA territory)","5%–10%","10%–15%","20% (avoid PMI)","25%–30%","More than 30%"] },
+
+  // BLOCK 3: Financial Profile
+  { id:"income", block:"Financial Profile", question:"Household annual gross income?", type:"single", hint:"Used to calculate debt-to-income ratio and affordability.",
+    options:["Under $80K","$80K–$120K","$120K–$180K","$180K–$250K","$250K–$400K","Over $400K"] },
+
+  { id:"liquid_savings", block:"Financial Profile", question:"Total liquid savings AFTER the down payment?", type:"single", hint:"Emergency reserves are critical — buying shouldn't drain all savings.",
+    options:["Less than 3 months expenses","3–6 months expenses","6–12 months expenses","More than 12 months expenses"] },
+
+  { id:"existing_debt", block:"Financial Profile", question:"Monthly debt payments (student loans, car, etc.)?", type:"single", hint:"Affects your DTI ratio — lenders want total housing costs under 43% of gross income.",
+    options:["None","Under $500/mo","$500–$1,000/mo","$1,000–$2,000/mo","Over $2,000/mo"] },
+
+  { id:"monthly_invest", block:"Financial Profile", question:"How much do you invest per month currently?", type:"single", hint:"This is what you'd invest in the market instead of paying the ownership premium.",
+    options:["Nothing","Under $500","$500–$2,000","$2,000–$5,000","$5,000–$10,000","Over $10,000"] },
+
+  { id:"investment_style", block:"Financial Profile", question:"What best describes your investments?", type:"multi", hint:"Helps us understand your alternative return assumptions.",
+    options:["Index funds (S&P 500, total market)","Bitcoin / crypto","Individual stocks","401K / IRA only","Real estate already","Savings account / HYSA","Not investing currently"] },
+
+  // BLOCK 4: Life Profile
+  { id:"visa", block:"Life & Stability", question:"What is your residency / visa status?", type:"single", hint:"Critical for FIRPTA implications and realistic holding period.",
+    options:["US Citizen","Green Card (Permanent Resident)","H-1B (I-140 approved — 3+ yr runway)","H-1B (I-140 not yet filed)","H-1B (waiting on I-140 approval)","L1 / O1 / other work visa","Student visa","Prefer not to say"] },
+
+  { id:"horizon", block:"Life & Stability", question:"How many years do you realistically plan to stay?", type:"single", hint:"The single most important variable in buy vs. rent math.",
+    options:["Less than 2 years","2–3 years","3–5 years","5–7 years","7–10 years","10–15 years","15+ years — this is home","Honestly not sure"] },
+
+  { id:"job_stability", block:"Life & Stability", question:"How stable is your employment situation?", type:"single", hint:"Job loss + mortgage = forced sale at worst time.",
+    options:["Very stable — government / tenured / long-term contract","Stable — established company, good history","Moderate — startup or industry with some volatility","Some uncertainty — recent change or field in flux","Uncertain — self-employed or highly variable income"] },
+
+  { id:"family", block:"Life & Stability", question:"Family situation and school priorities?", type:"single", hint:"School district quality has real dollar value.",
+    options:["Single, no kids, flexible","Couple, no kids — stability valued","Have school-age kids — district is a priority","Kids incoming in 1–2 years","Multi-generational household"] },
+
+  { id:"rent_risk", block:"Life & Stability", question:"How secure is your current rental situation?", type:"single", hint:"Landlord risk affects the real value of renting.",
+    options:["Very secure — rent controlled or long-term lease","Stable — good landlord, no signs of change","Moderate — month-to-month or uncertain","At risk — landlord may sell or raise rent significantly","Already received notice to vacate"] },
+
+  // BLOCK 5: Psychology
+  { id:"primary_motivation", block:"Why You Want To Buy", question:"What is your PRIMARY reason for considering buying?", type:"single", hint:"Be honest — this reveals whether the decision is financial or emotional.",
+    options:["Pure investment — I believe it will build more wealth","Stability and roots — I want a permanent home","Community pressure — family/friends say I should","Fear of missing out — prices keep rising","School district — need specific area for kids","Tired of renting — want control over my space","All of the above"] },
+
+  { id:"emotional_drivers", block:"Why You Want To Buy", question:"Which of these resonate with you? (pick all that apply)", type:"multi", hint:"Understanding bias helps us give you a more honest analysis.",
+    options:["Feel like rent is wasted money","Parents/family own — I should too","Friends bought and seem happy","Worried about being priced out forever","Want to renovate / make it mine","Need space for growing family","Tax benefits seem attractive","Want to stop paying someone else's mortgage"] },
+
+  { id:"risk_tolerance", block:"Why You Want To Buy", question:"How would you describe your financial risk tolerance?", type:"single", hint:"Real estate is a leveraged, illiquid bet — this matters.",
+    options:["Very conservative — stability over returns","Moderate — balanced approach","Growth-oriented — comfortable with volatility","Aggressive — maximum growth, I can handle swings","It depends on the specific situation"] },
+
+  { id:"appreciation_belief", block:"Why You Want To Buy", question:"What do you believe about home prices in your target market?", type:"single", hint:"Your appreciation assumption is the biggest variable in long-term buy math.",
+    options:["Will appreciate strongly (6%+/yr) — strong conviction","Will appreciate moderately (3–5%/yr)","Will be flat or slow (1–2%/yr)","Could correct 10–20% before recovering","I have no idea — I'm not betting on appreciation"] },
+
+  { id:"refi_likelihood", block:"Why You Want To Buy", question:"How likely do you think rates will drop significantly (to 4–5%) in the next 3–5 years?", type:"single", hint:"A refinance to 4.5% changes the monthly math by $800–$1,500.",
+    options:["Very likely — I'm counting on it","Somewhat likely","Uncertain — could go either way","Unlikely in that timeframe","I don't plan to refinance regardless"] },
+];
+
+const PRICE_MAP = {"Under $300K":250000,"$300K–$500K":400000,"$500K–$700K":600000,"$700K–$900K":800000,"$900K–$1.2M":1050000,"$1.2M–$1.6M":1400000,"Over $1.6M":1850000,"Use metro average":-1};
+const RATE_MAP  = {"Below 5.5% (excellent credit / market drop)":0.052,"5.5%–6.0%":0.057,"6.0%–6.5%":0.062,"6.5%–7.0% (current market)":0.068,"7.0%–7.5%":0.072,"Above 7.5%":0.078,"Not sure — use current rates":BASE_RATE};
+const DOWN_MAP  = {"Less than 5% (FHA territory)":0.035,"5%–10%":0.075,"10%–15%":0.125,"20% (avoid PMI)":0.20,"25%–30%":0.275,"More than 30%":0.35};
+const INCOME_MAP= {"Under $80K":65000,"$80K–$120K":100000,"$120K–$180K":150000,"$180K–$250K":215000,"$250K–$400K":320000,"Over $400K":500000};
+const INVEST_MAP= {"Nothing":0,"Under $500":250,"$500–$2,000":1250,"$2,000–$5,000":3500,"$5,000–$10,000":7500,"Over $10,000":12000};
+
+const fmt  = n => "$" + Math.round(n).toLocaleString();
+const fmtK = n => n >= 1000000 ? "$"+(n/1000000).toFixed(2)+"M" : "$"+(n/1000).toFixed(0)+"K";
+const pct  = n => (n*100).toFixed(1)+"%";
+
+// ═══════════════════════════════════════════════════════════════
+// ANALYSIS ENGINE
+// ═══════════════════════════════════════════════════════════════
+function analyze(a) {
+  const metro    = a.metro?.[0] ?? "Other US metro";
+  // Use scraped values if available (URL mode)
+  const urlMode  = a.url_mode;
+  const mdata    = METRO_DATA[metro] ?? METRO_DATA["Other US metro"];
+  const loanKey  = a.loan_type?.[0] ?? "30-year fixed";
+  const ldata    = LOAN_TYPES[loanKey] ?? LOAN_TYPES["30-year fixed"];
+
+  // Price
+  let price = a.scraped_price || PRICE_MAP[a.zip_price?.[0]];
+  if (!price || price === -1) price = mdata.price;
+
+  // Rate
+  let baseRate = RATE_MAP[a.rate_scenario?.[0]] ?? BASE_RATE;
+  const rate = baseRate + ldata.rate;
+
+  // Down payment
+  const downPct = DOWN_MAP[a.down_payment?.[0]] ?? 0.20;
+  const down    = price * downPct;
+  const loan    = price - down;
+  const pmi     = downPct < 0.20 ? loan * 0.008 / 12 : 0;
+
+  // Monthly mortgage
+  const isArm   = loanKey.includes("ARM");
+  const termYrs = loanKey.includes("15-year") ? 15 : 30;
+  const r       = rate / 12;
+  const n       = termYrs * 12;
+  const pi      = loan * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
+
+  // Other costs
+  const propTaxRate = metro.includes("New York") || metro.includes("Schenectady") ? 0.021 : 0.012;
+  const propTax  = a.scraped_tax ? a.scraped_tax / 12 : price * propTaxRate / 12;
+  const hoa      = a.scraped_hoa != null ? a.scraped_hoa : (a.property_type?.[0]?.includes("Condo") ? 400 : a.property_type?.[0]?.includes("Townhouse") ? 250 : 0);
+  const ins      = 150;
+  const maint    = price * 0.01 / 12;
+  const totalOwn = pi + propTax + hoa + ins + maint + pmi;
+
+  // Rent
+  const rent = mdata.rent;
+  const delta = totalOwn - rent;
+
+  // Income & affordability
+  const income = INCOME_MAP[a.income?.[0]] ?? 150000;
+  const monthlyIncome = income / 12;
+  const dti = (pi + propTax + ins) / monthlyIncome;
+  const affordability = dti < 0.28 ? "Comfortable" : dti < 0.36 ? "Stretched" : dti < 0.43 ? "Tight" : "Dangerous";
+
+  // Opportunity cost
+  const fxaix_return = 0.10;
+  const investMonthly = INVEST_MAP[a.monthly_invest?.[0]] ?? 1250;
+  const fxaix5  = Math.round(down * Math.pow(1+fxaix_return, 5));
+  const fxaix10 = Math.round(down * Math.pow(1+fxaix_return, 10));
+  const fxaix15 = Math.round(down * Math.pow(1+fxaix_return, 15));
+
+  // Delta invested
+  const deltaInvest5  = delta > 0 ? Math.round(delta * 12 * ((Math.pow(1+fxaix_return,5)-1)/fxaix_return)) : 0;
+  const deltaInvest10 = delta > 0 ? Math.round(delta * 12 * ((Math.pow(1+fxaix_return,10)-1)/fxaix_return)) : 0;
+
+  // Appreciation scenarios
+  const appr_bear = 0.01, appr_base = mdata.appr/100, appr_bull = 0.07;
+  const projVal = (yrs, rate_a) => Math.round(price * Math.pow(1+rate_a, yrs));
+
+  // Equity over time
+  function equityAtYear(yr) {
+    let bal = loan;
+    let cumP = 0;
+    const months = yr * 12;
+    for (let m = 1; m <= months; m++) {
+      const int = bal * r;
+      const prn = pi - int;
+      bal -= prn;
+      cumP += prn;
+    }
+    const appVal = price * Math.pow(1 + appr_base, yr);
+    return { equity: down + cumP + (appVal - price), balance: Math.max(0, bal), appVal, cumInterest: pi * months - cumP, cumPrincipal: cumP };
+  }
+
+  // Year 1 interest %
+  const yr1int = Math.round((loan * rate) / (pi * 12) * 100);
+
+  // Break-even year
+  let breakEvenYr = null;
+  for (let y = 1; y <= 30; y++) {
+    const e = equityAtYear(y);
+    const rentPaid = rent * 12 * y;
+    const ownCost = totalOwn * 12 * y;
+    const netOwn = e.equity - (down + ownCost - rent * 12 * y);
+    const rentInvest = fxaix5; // rough
+    if (e.equity > down && ownCost < rentPaid + fxaix10 * (y/10)) {
+      // simplified: when appreciation gain covers excess cost
+      if ((e.appVal - price) > (ownCost - rentPaid)) {
+        breakEvenYr = y;
+        break;
+      }
+    }
+  }
+
+  // PTR
+  const ptr = price / (rent * 12);
+
+  // FIRPTA / visa
+  const visa = a.visa?.[0] ?? "";
+  const visaRisk = visa.includes("H-1B") || visa.includes("L1") || visa.includes("O1") || visa.includes("work visa") || visa.includes("Student");
+  const visaHighRisk = visa.includes("not yet filed") || visa.includes("waiting") || visa.includes("Student");
+
+  // Horizon
+  const horizonYrs = {"Less than 2 years":1.5,"2–3 years":2.5,"3–5 years":4,"5–7 years":6,"7–10 years":8.5,"10–15 years":12,"15+ years — this is home":20,"Honestly not sure":4}[a.horizon?.[0]] ?? 7;
+
+  // Psychological bias score (0-100, higher = more emotionally driven)
+  const emotionalDrivers = a.emotional_drivers || [];
+  let biasScore = 0;
+  if (emotionalDrivers.includes("Feel like rent is wasted money")) biasScore += 20;
+  if (emotionalDrivers.includes("Parents/family own — I should too")) biasScore += 15;
+  if (emotionalDrivers.includes("Worried about being priced out forever")) biasScore += 20;
+  if (emotionalDrivers.includes("Want to stop paying someone else's mortgage")) biasScore += 15;
+  if (emotionalDrivers.includes("Friends bought and seem happy")) biasScore += 10;
+  if (a.primary_motivation?.[0] === "Community pressure — family/friends say I should") biasScore += 20;
+  if (a.primary_motivation?.[0] === "Fear of missing out — prices keep rising") biasScore += 25;
+  biasScore = Math.min(biasScore, 100);
+
+  // Financial readiness score
+  let readyScore = 50;
+  if (dti < 0.28) readyScore += 15; else if (dti > 0.43) readyScore -= 20;
+  if (downPct >= 0.20) readyScore += 10; else if (downPct < 0.10) readyScore -= 15;
+  if (a.liquid_savings?.[0]?.includes("6–12") || a.liquid_savings?.[0]?.includes("More than 12")) readyScore += 15;
+  if (a.liquid_savings?.[0]?.includes("Less than 3")) readyScore -= 20;
+  if (a.job_stability?.[0]?.includes("Very stable") || a.job_stability?.[0]?.includes("Stable —")) readyScore += 10;
+  if (a.job_stability?.[0]?.includes("Uncertain")) readyScore -= 15;
+  readyScore = Math.max(0, Math.min(100, readyScore));
+
+  // SCORING
+  let score = 0;
+
+  // PTR
+  if (ptr < 15) score += 3; else if (ptr < 18) score += 1; else if (ptr < 22) score -= 1; else if (ptr < 26) score -= 2; else score -= 3;
+
+  // Delta
+  if (delta < 300) score += 2; else if (delta < 800) score += 1; else if (delta < 1500) score -= 1; else if (delta < 3000) score -= 2; else score -= 3;
+
+  // Horizon
+  if (horizonYrs >= 15) score += 3; else if (horizonYrs >= 10) score += 2; else if (horizonYrs >= 7) score += 1; else if (horizonYrs >= 5) score -= 1; else if (horizonYrs < 3) score -= 3; else score -= 2;
+
+  // Visa
+  if (visaHighRisk) score -= 3; else if (visaRisk) score -= 2;
+
+  // Affordability
+  if (dti < 0.28) score += 1; else if (dti > 0.43) score -= 2;
+
+  // Reserves
+  if (a.liquid_savings?.[0]?.includes("Less than 3")) score -= 2;
+
+  // Rent risk
+  if (a.rent_risk?.[0]?.includes("At risk") || a.rent_risk?.[0]?.includes("Already received")) score += 2;
+
+  // Appreciation belief
+  if (a.appreciation_belief?.[0]?.includes("strongly")) score += 1;
+  if (a.appreciation_belief?.[0]?.includes("correct")) score -= 2;
+
+  const verdict = score >= 4 ? "BUY" : score >= 1 ? "BORDERLINE_BUY" : score <= -4 ? "RENT" : score <= -1 ? "BORDERLINE_RENT" : "BORDERLINE";
+  const confidence = Math.abs(score) >= 6 ? 90 : Math.abs(score) >= 4 ? 75 : Math.abs(score) >= 2 ? 60 : 45;
+
+  const scrapedAddress = a.scraped_address || null;
+  return {
+    metro, mdata, price, rate, down, downPct, loan, pi, pmi, propTax, hoa, ins, maint, totalOwn, scrapedAddress,
+    rent, delta, ptr, yr1int, dti, affordability, income,
+    fxaix5, fxaix10, fxaix15, deltaInvest5, deltaInvest10,
+    projVal, appr_base, appr_bear, appr_bull,
+    equityAtYear, breakEvenYr, horizonYrs,
+    visaRisk, visaHighRisk, visa,
+    biasScore, readyScore, score, verdict, confidence,
+    loanKey, ldata, termYrs, isArm, rate,
+    rent_risk: a.rent_risk?.[0] ?? "",
+    job_stability: a.job_stability?.[0] ?? "",
+    emotional_drivers: emotionalDrivers,
+    primary_motivation: a.primary_motivation?.[0] ?? "",
+    appreciation_belief: a.appreciation_belief?.[0] ?? "",
+    refi_likely: a.refi_likelihood?.[0]?.includes("Very") || a.refi_likelihood?.[0]?.includes("Somewhat"),
+    investMonthly,
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+let ST = { step:-1, answers:{}, current:[], result:null, activeChart:"equity", activeScenario:"base", loanCompOpen:false, scrapedProperty:null };
+function set(p) { Object.assign(ST, p); render(); }
+let charts = {};
+
+function destroyCharts() {
+  Object.values(charts).forEach(c => { try { c.destroy(); } catch(e){} });
+  charts = {};
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════
+function priceToRange(price) {
+  if (price < 300000) return "Under $300K";
+  if (price < 500000) return "$300K-$500K";
+  if (price < 700000) return "$500K-$700K";
+  if (price < 900000) return "$700K-$900K";
+  if (price < 1200000) return "$900K-$1.2M";
+  if (price < 1600000) return "$1.2M-$1.6M";
+  return "Over $1.6M";
+}
+
+function detectPropertyType(type) {
+  const t = type.toLowerCase();
+  if (t.includes("condo")) return "Condo (with HOA)";
+  if (t.includes("town") || t.includes("row")) return "Townhouse / row home";
+  if (t.includes("single") || t.includes("sfh") || t.includes("detach")) return "Detached single family home";
+  return "Not sure yet";
+}
+
+function render() {
+  destroyCharts();
+  const app = document.getElementById("app");
+  const { step, answers, current, result } = ST;
+  const N = STEPS.length;
+
+  // INTRO
+  if (step === -1) {
+    app.innerHTML = `
+    <div class="intro">
+      <div class="intro-bg"></div>
+      <div class="intro-grid"></div>
+      <div class="intro-card">
+        <div class="logo">Home<span>IQ</span></div>
+        <div class="tagline">The honest buy vs. rent analyzer</div>
+        <p class="intro-desc">20 questions. Real financial math. A comprehensive analysis covering loan types, market data, psychological bias, scenario projections, and a genuine verdict — not what an agent would tell you.</p>
+        <p style="font-size:14px;color:#2d6a4f;background:#d8f3dc;border:1px solid #b7e4c7;border-radius:10px;padding:14px 18px;margin-bottom:32px;line-height:1.7;font-style:italic;max-width:500px;margin-left:auto;margin-right:auto;">"Built by an H-1B engineer in the Bay Area who got tired of being told to buy a house without seeing the real math. No ads. No referrals. Just honest numbers."</p>
+        <div class="feature-grid">
+          <div class="feature-item"><div class="feature-icon">📊</div><div class="feature-label">6 financial charts & projections</div></div>
+          <div class="feature-item"><div class="feature-icon">🏦</div><div class="feature-label">Fixed, ARM, FHA, VA loan comparison</div></div>
+          <div class="feature-item"><div class="feature-icon">🧠</div><div class="feature-label">Psychological bias detection</div></div>
+          <div class="feature-item"><div class="feature-icon">🌍</div><div class="feature-icon"></div><div class="feature-label">20 metro markets with real data</div></div>
+          <div class="feature-item"><div class="feature-icon">🛂</div><div class="feature-label">Visa & FIRPTA analysis</div></div>
+          <div class="feature-item"><div class="feature-icon">📈</div><div class="feature-label">Bull / base / bear scenarios</div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:8px">
+          <button class="start-btn" id="sb">Begin Analysis →</button>
+          <div style="display:flex;align-items:center;gap:12px;margin:4px 0">
+            <div style="flex:1;height:1px;background:#e2ddd8"></div>
+            <span style="font-size:12px;color:#8a837c;font-family:'JetBrains Mono',monospace">OR</span>
+            <div style="flex:1;height:1px;background:#e2ddd8"></div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <input id="homes-url" type="url" placeholder="Paste a homes.com listing URL..." style="flex:1;padding:13px 16px;border:1.5px solid #e2ddd8;border-radius:10px;font-size:13px;font-family:'Inter',sans-serif;outline:none;color:#1a1714;background:#fff;transition:border-color 0.15s" />
+            <button id="url-btn" style="background:#1a56db;color:#fff;border:none;border-radius:10px;padding:13px 18px;font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;font-weight:600;white-space:nowrap;transition:all 0.15s">Analyze →</button>
+          </div>
+          <p style="font-size:11px;color:#8a837c;font-family:'JetBrains Mono',monospace;margin-top:-4px">Paste any homes.com listing — we extract price, HOA, and tax automatically</p>
+        </div>
+        <p class="disclaimer">No account · No data stored · Instant results · Free</p>
+      </div>
+    </div>`;
+    document.getElementById("sb").onclick = () => set({ step:0 });
+
+    // Focus styling for URL input
+    const urlInput = document.getElementById("homes-url");
+    if (urlInput) {
+      urlInput.addEventListener("focus", () => urlInput.style.borderColor = "#1a56db");
+      urlInput.addEventListener("blur",  () => urlInput.style.borderColor = "#e2ddd8");
+    }
+
+    document.getElementById("url-btn").onclick = async () => {
+      const url = document.getElementById("homes-url").value.trim();
+      if (!url || (!url.includes("homes.com") && !url.includes("zillow.com") && !url.includes("redfin.com"))) {
+        alert("Please paste a valid homes.com, Zillow, or Redfin listing URL");
+        return;
+      }
+      const btn = document.getElementById("url-btn");
+      btn.textContent = "Fetching...";
+      btn.disabled = true;
+
+      try {
+        const resp = await fetch("/api/scrape", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url }),
+        });
+        const data = await resp.json();
+
+        if (!data.success || !data.price) {
+          // Scraping failed — pre-fill what we can and let user complete manually
+          alert("Could not auto-extract all details. We'll pre-fill what we found and you can complete the rest.");
+        }
+
+        // Store scraped data and jump to personal questions (skip property questions)
+        ST.scrapedProperty = data;
+        ST.answers = {
+          // Pre-fill property answers from scraped data
+          zip_price: [data.price ? priceToRange(data.price) : "Use metro average"],
+          property_type: [detectPropertyType(data.propertyType || "")],
+          scraped_price: data.price,
+          scraped_hoa: data.hoa || 0,
+          scraped_tax: data.annualTax,
+          scraped_address: data.address,
+          url_mode: true,
+        };
+        // Skip to step 4 (after property questions — go straight to financial profile)
+        set({ step: 5 });
+      } catch(e) {
+        alert("Could not reach the property analyzer. Please use the manual questionnaire instead.");
+      } finally {
+        btn.textContent = "Analyze →";
+        btn.disabled = false;
+      }
+    };
+    return;
+  }
+
+  // RESULT
+  if (result) {
+    renderResult(app, result);
+    return;
+  }
+
+  // QUESTIONS
+  const s = STEPS[step];
+  const progress = ((step) / N) * 100;
+  const canContinue = current.length > 0;
+
+  app.innerHTML = `
+  <div class="q-shell">
+    <div class="q-header">
+      <div class="q-progress-track"><div class="q-progress-fill" style="width:${progress}%"></div></div>
+      <div class="q-meta"><span>${s.block}</span><span>${step+1} / ${N}</span></div>
+    </div>
+    <div class="q-card">
+      <div class="q-block">${s.block}</div>
+      <h2 class="q-question">${s.question}</h2>
+      ${s.hint ? `<p class="q-hint">${s.hint}</p>` : ""}
+      ${s.type==="multi" ? '<div class="multi-tag">SELECT ALL THAT APPLY</div>' : ""}
+      <div class="q-options">
+        ${s.options.map(opt => {
+          const sel = current.includes(opt);
+          const rad = s.type==="multi" ? "4px" : "50%";
+          return `<button class="q-opt${sel?" sel":""}" data-opt="${encodeURIComponent(opt)}">
+            <div class="q-check${sel?" sel":""}" style="border-radius:${rad}">${sel?"✓":""}</div>
+            ${opt}
+          </button>`;
+        }).join("")}
+      </div>
+      <div class="q-nav">
+        ${step > 0 ? '<button class="btn-back" id="bb">← Back</button>' : ""}
+        <button class="btn-next" id="nb" ${canContinue?"":"disabled"}>${step+1>=N?"See My Analysis →":"Continue →"}</button>
+      </div>
+    </div>
+  </div>`;
+
+  document.querySelectorAll(".q-opt").forEach(b => {
+    b.onclick = () => {
+      const opt = decodeURIComponent(b.dataset.opt);
+      if (s.type==="multi") {
+        ST.current = current.includes(opt) ? current.filter(o=>o!==opt) : [...current, opt];
+      } else {
+        ST.current = [opt];
+      }
+      render();
+    };
+  });
+
+  document.getElementById("nb")?.addEventListener("click", () => {
+    if (!ST.current.length) return;
+    const a = { ...ST.answers, [s.id]: ST.current };
+    ST.answers = a; ST.current = [];
+    if (step+1 >= N) {
+      ST.result = analyze(a);
+      set({});
+    } else {
+      set({ step: step+1 });
+    }
+  });
+
+  document.getElementById("bb")?.addEventListener("click", () => set({ step: Math.max(-1, step-1), current:[] }));
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RESULT RENDERER
+// ═══════════════════════════════════════════════════════════════
+function renderResult(app, r) {
+  const VC = {
+    BUY:            { color:"#1e8a4c", bg:"#f0fdf8", border:"#86efac", emoji:"🏡", label:"Buying Makes Strong Sense" },
+    BORDERLINE_BUY: { color:"#6c3fc5", bg:"#f5f3ff", border:"#c4b5fd", emoji:"📊", label:"Leaning Toward Buying" },
+    BORDERLINE:     { color:"#b45309", bg:"#fffbeb", border:"#fcd34d", emoji:"⚖️", label:"It Genuinely Depends" },
+    BORDERLINE_RENT:{ color:"#c2410c", bg:"#fff7ed", border:"#fdba74", emoji:"📉", label:"Leaning Toward Renting" },
+    RENT:           { color:"#c0392b", bg:"#fff5f5", border:"#fca5a5", emoji:"🏦", label:"Renting Is The Smarter Move" },
+  };
+  const vc = VC[r.verdict] ?? VC.BORDERLINE;
+
+  const verdictSubtitle = {
+    BUY: "The financial math and your personal situation align to make buying a sound decision. The key is maintaining your long-term commitment.",
+    BORDERLINE_BUY: "Buying could work well for you, but with meaningful conditions. The numbers aren't overwhelmingly in favor, but your situation has real strengths.",
+    BORDERLINE: "This is genuinely close. Small changes in rate, appreciation, or timeline could tip it either way. Your personal factors are the deciding variable.",
+    BORDERLINE_RENT: "The financial math slightly favors renting, but it's not a slam dunk. Key risks around visa, horizon, or rates push against buying right now.",
+    RENT: "The numbers clearly favor renting and investing the difference. Buying would require significant improvements in rate, price, or holding period to make sense.",
+  }[r.verdict] ?? "";
+
+  // Loan comparisons
+  const loanComparisons = Object.entries(LOAN_TYPES).map(([name, ld]) => {
+    const lr = r.rate - LOAN_TYPES[r.loanKey].rate + ld.rate;
+    const lpi = r.loan * (lr/12) * Math.pow(1+lr/12,360) / (Math.pow(1+lr/12,360)-1);
+    const totalInt = lpi * 360 - r.loan;
+    return { name, rate: lr, monthly: lpi, totalInterest: totalInt, risk: ld.risk };
+  });
+
+  app.innerHTML = `
+  <div class="results">
+
+    <!-- VERDICT HEADER -->
+    <div class="results-header" style="background:${vc.bg};border-color:${vc.border}">
+      <div class="verdict-emoji">${vc.emoji}</div>
+      <div class="verdict-tag">HomeIQ Verdict · ${r.confidence}% Confidence${r.scrapedAddress ? " · " + r.scrapedAddress : ""}</div>
+      <div class="verdict-title" style="color:${vc.color}">${vc.label}</div>
+      <p class="verdict-subtitle">${verdictSubtitle}</p>
+      <div class="confidence-bar">
+        <span class="confidence-label">Confidence</span>
+        <div class="confidence-track"><div class="confidence-fill" id="cf" style="width:0%;background:${vc.color}"></div></div>
+        <span class="confidence-label" style="color:${vc.color}">${r.confidence}%</span>
+      </div>
+    </div>
+
+    <!-- MARKET SNAPSHOT -->
+    <div class="section-label" style="margin-top:32px">Market Snapshot · ${r.metro}</div>
+    <div class="market-grid">
+      <div class="market-card">
+        <div class="market-label">Price-to-Rent Ratio</div>
+        <div class="market-value" style="color:${r.ptr>25?"#c0392b":r.ptr>18?"#b45309":"#1e8a4c"}">${r.ptr.toFixed(1)}x</div>
+        <div class="market-sub">${r.ptr>25?"Strongly favors renting":r.ptr>20?"Favors renting":r.ptr>15?"Borderline":"Favors buying"}</div>
+      </div>
+      <div class="market-card">
+        <div class="market-label">Monthly Ownership Cost</div>
+        <div class="market-value">${fmt(r.totalOwn)}</div>
+        <div class="market-sub">vs. ${fmt(r.rent)}/mo to rent</div>
+      </div>
+      <div class="market-card">
+        <div class="market-label">Monthly Premium</div>
+        <div class="market-value" style="color:${r.delta>3000?"#c0392b":r.delta>1000?"#b45309":"#1e8a4c"}">${fmt(r.delta)}/mo</div>
+        <div class="market-sub">extra to own vs. rent</div>
+      </div>
+      <div class="market-card">
+        <div class="market-label">Year 1 Interest</div>
+        <div class="market-value" style="color:${r.yr1int>80?"#c0392b":r.yr1int>65?"#b45309":"#1e8a4c"}">${r.yr1int}%</div>
+        <div class="market-sub">of each payment to bank</div>
+      </div>
+      <div class="market-card">
+        <div class="market-label">DTI Ratio</div>
+        <div class="market-value" style="color:${r.dti>0.43?"#c0392b":r.dti>0.36?"#b45309":"#1e8a4c"}">${(r.dti*100).toFixed(0)}%</div>
+        <div class="market-sub">${r.affordability} · under 28% ideal</div>
+      </div>
+      <div class="market-card">
+        <div class="market-label">Down Payment → FXAIX 10yr</div>
+        <div class="market-value" style="color:#6c3fc5">${fmtK(r.fxaix10)}</div>
+        <div class="market-sub">${fmt(r.down)} at 10%/yr</div>
+      </div>
+    </div>
+
+    <!-- KEY SCORES -->
+    <div class="section-label">Your Scores</div>
+    <div class="score-grid">
+      <div class="score-card">
+        <div class="score-card-label">Financial Readiness</div>
+        <div class="score-card-value" style="color:${r.readyScore>=70?"#1e8a4c":r.readyScore>=50?"#b45309":"#c0392b"}">${r.readyScore}<span style="font-size:14px;color:var(--text3)">/100</span></div>
+        <div class="score-card-note">${r.readyScore>=70?"Strong fundamentals for buying":r.readyScore>=50?"Adequate — some gaps to address":"Significant readiness concerns"}</div>
+        <div class="score-card-bar"><div class="score-card-fill" style="width:${r.readyScore}%;background:${r.readyScore>=70?"#1e8a4c":r.readyScore>=50?"#b45309":"#c0392b"}"></div></div>
+      </div>
+      <div class="score-card">
+        <div class="score-card-label">Emotional Bias Score</div>
+        <div class="score-card-value" style="color:${r.biasScore>=60?"#c0392b":r.biasScore>=35?"#b45309":"#1e8a4c"}">${r.biasScore}<span style="font-size:14px;color:var(--text3)">/100</span></div>
+        <div class="score-card-note">${r.biasScore>=60?"High emotional pressure — be extra analytical":r.biasScore>=35?"Moderate emotional drivers — good to be aware":"Decision appears financially motivated"}</div>
+        <div class="score-card-bar"><div class="score-card-fill" style="width:${r.biasScore}%;background:${r.biasScore>=60?"#c0392b":r.biasScore>=35?"#b45309":"#1e8a4c"}"></div></div>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="chart-section">
+      <div class="section-label">Financial Projections</div>
+      <div class="chart-tabs">
+        ${[["equity","Equity vs. Interest"],["rvsb","Rent vs. Own"],["fxaix","FXAIX Comparison"],["monthly","Monthly Breakdown"],["scenarios","Appreciation Scenarios"]].map(([id,label])=>`<button class="chart-tab${ST.activeChart===id?" active":""}" data-chart="${id}">${label}</button>`).join("")}
+      </div>
+      <canvas id="mainChart"></canvas>
+    </div>
+
+    <!-- LOAN COMPARISON -->
+    <div class="chart-section">
+      <div class="section-label">Loan Type Comparison · ${fmt(r.loan)} Loan</div>
+      <table class="loan-table">
+        <thead><tr><th>Loan Type</th><th>Rate</th><th>Monthly P&I</th><th>Total Interest (30yr)</th><th>Risk</th></tr></thead>
+        <tbody>
+          ${loanComparisons.map(l => `
+            <tr${l.name===r.loanKey?" class='highlight'":""}>
+              <td>${l.name}${l.name===r.loanKey?' <span class="loan-badge" style="background:rgba(124,106,247,0.2);color:#a594ff">Selected</span>':""}</td>
+              <td style="font-family:'DM Mono',monospace;color:var(--accent2)">${(l.rate*100).toFixed(2)}%</td>
+              <td style="font-family:'DM Mono',monospace">${fmt(l.monthly)}</td>
+              <td style="font-family:'DM Mono',monospace;color:${l.totalInterest>r.loan?"#c0392b":"#b45309"}">${fmtK(l.totalInterest)}</td>
+              <td><span class="loan-badge" style="background:${l.risk==="low"?"#f0fdf4":l.risk==="medium"?"#fffbeb":"#fff5f5"};color:${l.risk==="low"?"#1e8a4c":l.risk==="medium"?"#b45309":"#c0392b"}">${l.risk}</span></td>
+            </tr>`).join("")}
+        </tbody>
+      </table>
+      ${r.isArm ? `<p style="font-size:12px;color:#b45309;margin-top:12px;padding:10px;background:rgba(245,197,66,0.08);border-radius:8px;border:1px solid rgba(245,197,66,0.2)">⚠️ ARM Warning: Your rate resets after the initial period. If rates stay high, your payment could increase ${fmt((r.pi * 1.3) - r.pi)}/mo or more. Budget for the worst case.</p>` : ""}
+    </div>
+
+    <!-- SCENARIOS -->
+    <div class="chart-section">
+      <div class="section-label">Appreciation Scenarios · ${Math.round(r.horizonYrs)} Year Horizon</div>
+      <div class="scenario-tabs">
+        ${[["bear","🐻 Bear (1%/yr)"],["base","📊 Base ("+pct(r.appr_base)+"/yr)"],["bull","🐂 Bull (7%/yr)"]].map(([id,label])=>`<button class="scenario-tab${ST.activeScenario===id?" active":""}" data-scenario="${id}">${label}</button>`).join("")}
+      </div>
+      <div id="scenario-content"></div>
+    </div>
+
+    <!-- PSYCHOLOGICAL PROFILE -->
+    <div class="section-label">Your Psychological Profile</div>
+    <div class="psych-grid">
+      <div class="psych-card">
+        <div class="psych-label">FOMO / Price Anxiety</div>
+        <div class="psych-meter"><div class="psych-fill" style="width:${r.emotional_drivers.includes("Worried about being priced out forever")?80:r.appreciation_belief?.includes("strongly")?60:20}%;background:#c0392b"></div></div>
+        <div class="psych-desc">${r.emotional_drivers.includes("Worried about being priced out forever")?"High — 'priced out forever' thinking leads to hasty decisions. Markets correct. Timing matters less than fundamentals over 10+ years.":"Low to moderate. Good."}</div>
+      </div>
+      <div class="psych-card">
+        <div class="psych-label">Social Pressure</div>
+        <div class="psych-meter"><div class="psych-fill" style="width:${r.emotional_drivers.includes("Parents/family own — I should too")||r.emotional_drivers.includes("Friends bought and seem happy")?75:r.primary_motivation?.includes("Community pressure")?90:15}%;background:#c2410c"></div></div>
+        <div class="psych-desc">${r.emotional_drivers.includes("Parents/family own — I should too")||r.primary_motivation?.includes("Community")?'Significant social pressure detected. Their experience at different rates and prices may not apply to your situation.':"Low social pressure — good signal."}</div>
+      </div>
+      <div class="psych-card">
+        <div class="psych-label">Rent = Wasted Money Myth</div>
+        <div class="psych-meter"><div class="psych-fill" style="width:${r.emotional_drivers.includes("Feel like rent is wasted money")||r.emotional_drivers.includes("Want to stop paying someone else's mortgage")?85:30}%;background:#b45309"></div></div>
+        <div class="psych-desc">${r.emotional_drivers.includes("Feel like rent is wasted money")?"This is the most common bias. In year 1 at "+r.yr1int+"%, "+r.yr1int+"% of your mortgage payment also 'disappears' as interest. The math is closer than you think.":"Not a dominant driver — good."}</div>
+      </div>
+      <div class="psych-card">
+        <div class="psych-label">Financial Decision Quality</div>
+        <div class="psych-meter"><div class="psych-fill" style="width:${100-r.biasScore}%;background:#1e8a4c"></div></div>
+        <div class="psych-desc">${100-r.biasScore>=70?"Your decision appears primarily financially motivated — a strong foundation.":"Consider separating the emotional desire to own from the financial analysis."}</div>
+      </div>
+    </div>
+
+    <!-- VISA BLOCK -->
+    ${r.visaRisk ? `
+    <div class="analysis-block ${r.visaHighRisk?"bad":"warn"}">
+      <h3>${r.visaHighRisk?"⚠️ High Visa Risk":"⚡ Visa Consideration"}</h3>
+      <p>${r.visaHighRisk
+        ? "Your current visa status creates serious financial risk for a home purchase. A forced sale due to visa issues triggers FIRPTA withholding — 15% of the gross sale price (not the gain) held by the IRS. On a "+fmt(r.price)+" home that's "+fmt(r.price*0.15)+" in withheld funds at closing, creating a liquidity crisis precisely when you're dealing with an international move."
+        : "Your visa status ("+r.visa+") creates some risk. Even with I-140 approved, H-1B holders face employment-tied residency — a layoff could force a rushed sale. The buying thesis requires a 10+ year hold which demands stable immigration status throughout."
+      }</p>
+      <p>The minimum holding period to break even on transaction costs alone is typically 4–5 years. Any forced sale before that guarantees a financial loss. <strong>Resolve immigration status before committing to a 30-year mortgage.</strong></p>
+    </div>` : ""}
+
+    <!-- RENT RISK BLOCK -->
+    ${r.rent_risk?.includes("At risk") || r.rent_risk?.includes("Already received") ? `
+    <div class="analysis-block warn">
+      <h3>🏠 Rental Instability — A Real Factor</h3>
+      <p>Your rental situation has genuine risk. This is one of the legitimate non-financial arguments for buying — stability has real value that doesn't appear in spreadsheets. A forced move mid-school-year or into a worse neighborhood has measurable costs. However, the solution may be finding a more stable rental first rather than rushing a purchase.</p>
+    </div>` : ""}
+
+    <!-- CORE ANALYSIS BLOCKS -->
+    <div class="analysis-block">
+      <h3>What The Numbers Actually Say</h3>
+      <p>At ${fmt(r.price)} with ${(r.downPct*100).toFixed(0)}% down and a ${(r.rate*100).toFixed(2)}% ${r.loanKey}, your true all-in monthly cost is ${fmt(r.totalOwn)} — vs. ${fmt(r.rent)}/mo to rent a comparable home in ${r.metro}. That ${fmt(r.delta)}/mo gap, invested in FXAIX at 10%/yr over your ${Math.round(r.horizonYrs)}-year horizon, would compound to approximately ${fmtK(r.deltaInvest5 * r.horizonYrs/5)}.</p>
+      <p>The ${r.metro} price-to-rent ratio of ${r.ptr.toFixed(1)}x places it ${r.ptr>25?"firmly in 'renter-favorable' territory — above 25x is a strong signal that the market is priced for appreciation, not ownership economics":r.ptr>20?"in borderline territory — markets above 20x generally favor renting unless you have a very long horizon":"below 20x — which is approaching the zone where buying begins to make mathematical sense"}. Your ${r.affordability.toLowerCase()} DTI of ${(r.dti*100).toFixed(0)}% ${r.dti<0.28?"gives you comfortable financial headroom":"puts meaningful pressure on your monthly budget"}.</p>
+    </div>
+
+    <div class="analysis-block">
+      <h3>The Inflation & Long-Term Argument</h3>
+      <p>Your ${(r.rate*100).toFixed(2)}% mortgage is locked. Inflation will erode its real cost every year. Today's ${fmt(r.pi)}/mo P&I payment will feel like ${fmt(r.pi * 0.65)}/mo in today's dollars by year 15 assuming 3% inflation. Your renting neighbor will be paying market rent — which historically rises 3–4%/yr — meaning they'll pay ${fmt(r.rent * Math.pow(1.035, 15))}/mo by year 15 while you still pay ${fmt(r.pi)}/mo.</p>
+      <p>${r.refi_likely?"If rates drop to 4.5–5% and you refinance, your P&I would fall to approximately "+fmt(r.loan * (0.045/12) * Math.pow(1+0.045/12,360) / (Math.pow(1+0.045/12,360)-1))+" — changing the entire financial picture and accelerating your break-even.":"The inflation argument requires a long hold. At your "+Math.round(r.horizonYrs)+"-year expected horizon, you "+( r.horizonYrs >= 10 ? "have sufficient time for this advantage to materialize meaningfully." : "may exit before capturing most of this benefit.")}</p>
+    </div>
+
+    <div class="analysis-block">
+      <h3>On Your Reasons For Buying</h3>
+      ${r.emotional_drivers.includes("Feel like rent is wasted money") ? `<p><strong>On "rent is wasted money":</strong> In year 1 of your mortgage, ${r.yr1int}% of every payment goes to the bank as interest — that's ${fmt(r.pi * r.yr1int/100)}/mo that also "disappears." The honest comparison is total cost of ownership vs. total cost of renting, not mortgage payment vs. rent payment.</p>` : ""}
+      ${r.emotional_drivers.includes("Parents/family own — I should too") || r.primary_motivation?.includes("Community") ? `<p><strong>On community/family pressure:</strong> The people advising you bought at very different rates and prices. A person who bought in ${r.metro} in 2012 at a 3.5% rate has a completely different financial reality than someone buying today at ${(r.rate*100).toFixed(2)}%. Their success is real — but it doesn't translate to your situation without adjustment.</p>` : ""}
+      ${r.emotional_drivers.includes("Worried about being priced out forever") ? `<p><strong>On being "priced out forever":</strong> ${r.metro} has experienced price corrections before. 2008–2012 saw 20–40% corrections in many markets. More importantly, your wealth-building from renting and investing isn't standing still — ${fmtK(r.fxaix10)} in 10 years positions you for a stronger purchase later.</p>` : ""}
+      <p>${r.primary_motivation?.includes("Pure investment") ? "Your investment-motivated framing is actually the most analytically rigorous starting point. Stick with that lens and don't let emotional factors override the math." : "The desire for stability and roots is legitimate and valuable. The question is whether the premium you'd pay for ownership is worth it at today's prices and rates in your specific market."}</p>
+    </div>
+
+    <!-- RECOMMENDATIONS -->
+    <div class="section-label" style="margin-top:8px">Specific Recommendations For You</div>
+    <div class="reco-list" id="recos"></div>
+
+    <div class="divider"></div>
+    <button class="reset-btn" id="rb">← Run Another Analysis</button>
+    <p class="foot-disc">HomeIQ is educational, not financial advice. Consult a fee-only fiduciary advisor before major decisions.</p>
+  </div>`;
+
+  // Animate confidence bar
+  setTimeout(() => {
+    const cf = document.getElementById("cf");
+    if (cf) cf.style.width = r.confidence + "%";
+  }, 100);
+
+  // Render recommendations
+  renderRecos(r);
+
+  // Render scenario
+  renderScenarioContent(r);
+
+  // Chart tabs
+  document.querySelectorAll(".chart-tab").forEach(b => {
+    b.onclick = () => { ST.activeChart = b.dataset.chart; renderChart(r); };
+  });
+  document.querySelectorAll(".scenario-tab").forEach(b => {
+    b.onclick = () => { ST.activeScenario = b.dataset.scenario; renderScenarioContent(r); };
+  });
+
+  renderChart(r);
+
+  document.getElementById("rb").onclick = () => set({ step:-1, answers:{}, current:[], result:null });
+}
+
+function renderRecos(r) {
+  const recos = [];
+
+  if (r.downPct < 0.20) recos.push({ icon:"💰", title:"Save to 20% Down", text:`You're at ${(r.downPct*100).toFixed(0)}% down. Reaching 20% saves PMI of ${fmt(r.pmi)}/mo and ~${fmt(r.pmi*12*5)} over 5 years. Gap: ${fmt(r.price * (0.20 - r.downPct))}.` });
+  if (r.visaHighRisk) recos.push({ icon:"🛂", title:"Resolve Immigration First", text:"File I-140 and confirm your visa runway before signing a 30-year mortgage. This is non-negotiable financial risk management." });
+  if (r.dti > 0.36) recos.push({ icon:"📉", title:"Reduce Your DTI", text:`At ${(r.dti*100).toFixed(0)}% DTI you're stretched. Either target a lower price (~${fmtK(r.price*0.80)}) or pay down existing debt before buying.` });
+  if (r.liquid_savings?.includes("Less than 3")) recos.push({ icon:"🏦", title:"Build Emergency Reserves First", text:"Never buy with less than 6 months expenses in reserve. A roof issue, job loss, or major repair can force a financially devastating sale." });
+  if (r.isArm) recos.push({ icon:"⚠️", title:"Model the ARM Reset Scenario", text:`Your ${r.loanKey} resets after the initial period. Budget as if your payment could rise to ${fmt(r.pi*1.35)}/mo. If that breaks you, choose a fixed rate.` });
+  if (r.horizonYrs < 5 && !r.rent_risk?.includes("At risk")) recos.push({ icon:"⏱️", title:"Extend Your Horizon or Reconsider", text:`At ${r.horizonYrs} years, transaction costs alone (~6% = ${fmt(r.price*0.06)}) require ~${(r.price*0.06/(r.price*r.appr_base)).toFixed(1)} years of appreciation just to break even.` });
+  if (r.refi_likely) recos.push({ icon:"📊", title:"Refinance Strategy Ready", text:`If rates drop to 4.5%, your P&I falls to ~${fmt(r.loan * (0.045/12) * Math.pow(1+0.045/12,360)/(Math.pow(1+0.045/12,360)-1))}. Set a rate alert and refinance quickly — this changes the entire math.` });
+  if (r.verdict?.includes("RENT") && r.rent_risk?.includes("stable")) recos.push({ icon:"📈", title:"Invest the Monthly Delta", text:`The ${fmt(r.delta)}/mo you save by renting should be systematically invested. In 10 years that compounds to ~${fmtK(r.deltaInvest10)} — real wealth that funds a stronger purchase later.` });
+  if (r.biasScore >= 60) recos.push({ icon:"🧠", title:"Separate Emotion From Finance", text:"Your bias score suggests significant emotional pressure. Before deciding, write down the three strongest financial arguments FOR and AGAINST, ignoring social/emotional factors entirely." });
+  if (r.ptr < 15 && r.horizonYrs >= 7) recos.push({ icon:"✅", title:"Market Timing is Favorable", text:`A ${r.ptr.toFixed(1)}x price-to-rent ratio with your ${Math.round(r.horizonYrs)}-year horizon is one of the cleaner cases for buying. The market is not excessively speculative.` });
+
+  if (!recos.length) recos.push({ icon:"✅", title:"Your Situation is Well-Positioned", text:"No critical flags. Focus on finding the right property at or below your target price with the best available rate." });
+
+  document.getElementById("recos").innerHTML = recos.map(rec => `
+    <div class="reco-item">
+      <div class="reco-icon">${rec.icon}</div>
+      <div><div class="reco-title">${rec.title}</div><div class="reco-text">${rec.text}</div></div>
+    </div>`).join("");
+}
+
+function renderScenarioContent(r) {
+  const rate_a = ST.activeScenario === "bear" ? r.appr_bear : ST.activeScenario === "bull" ? r.appr_bull : r.appr_base;
+  const color  = ST.activeScenario === "bear" ? "#f05c5c" : ST.activeScenario === "bull" ? "#3dd68c" : "#7c6af7";
+  const yrs    = [5, 10, 15];
+  const el = document.getElementById("scenario-content");
+  if (!el) return;
+
+  el.innerHTML = `<div class="scenario-grid">
+    ${yrs.map(y => {
+      const e = r.equityAtYear(y);
+      const projV = Math.round(r.price * Math.pow(1+rate_a, y));
+      const eq = r.down + e.cumPrincipal + (projV - r.price);
+      const fxaix_alt = Math.round(r.down * Math.pow(1.10, y));
+      const better = eq > fxaix_alt;
+      return `<div class="scenario-card">
+        <div class="scenario-year">Year ${y}</div>
+        <div class="scenario-val" style="color:${color}">${fmtK(projV)}</div>
+        <div class="scenario-sub" style="margin-bottom:8px">Home value</div>
+        <div class="scenario-val" style="color:${color};font-size:16px">${fmtK(Math.max(0,eq))}</div>
+        <div class="scenario-sub" style="margin-bottom:8px">Your equity</div>
+        <div class="scenario-sub" style="color:${better?"#3dd68c":"#f05c5c"}">
+          ${better?"✓ Beats":"✗ Trails"} FXAIX (${fmtK(fxaix_alt)})
+        </div>
+      </div>`;
+    }).join("")}
+  </div>
+  <p style="font-size:12px;color:var(--text3);margin-top:12px;font-family:'DM Mono',monospace">
+    ${ST.activeScenario==="bear"?"Bear case: "+pct(r.appr_bear)+"/yr appreciation — below inflation, real loss of purchasing power":ST.activeScenario==="bull"?"Bull case: 7%/yr — strong market, similar to Bay Area 2010-2020 average":"Base case: "+pct(r.appr_base)+"/yr — historical average for "+r.metro}
+  </p>`;
+
+  document.querySelectorAll(".scenario-tab").forEach(b => {
+    b.classList.toggle("active", b.dataset.scenario === ST.activeScenario);
+  });
+}
+
+function renderChart(r) {
+  destroyCharts();
+  const canvas = document.getElementById("mainChart");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+
+  const gridColor = "rgba(0,0,0,0.06)";
+  const textColor = "#8a837c";
+  const defaultOptions = {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { labels: { color: "#9896a8", font: { family:"'DM Mono', monospace", size:11 }, boxWidth:12, padding:16 } }, tooltip: { backgroundColor:"#ffffff", borderColor:"#e2ddd8", borderWidth:1, titleColor:"#1a1714", bodyColor:"#4a4540", titleFont:{family:"'DM Mono',monospace"}, bodyFont:{family:"'DM Mono',monospace"} } },
+    scales: { x: { grid:{color:gridColor}, ticks:{color:textColor,font:{family:"'DM Mono',monospace",size:10}} }, y: { grid:{color:gridColor}, ticks:{color:textColor,font:{family:"'DM Mono',monospace",size:10}, callback: v => fmtK(v)} } }
+  };
+
+  const years = Array.from({length:30},(_,i)=>i+1);
+
+  if (ST.activeChart === "equity") {
+    const cumInt=[], cumPrn=[], equity=[];
+    let bal=r.loan, ci=0, cp=0;
+    const rv=r.rate/12;
+    for(let m=1;m<=360;m++){
+      const i=bal*rv, p=r.pi-i;
+      ci+=i; cp+=p; bal-=p;
+      if(m%12===0){ cumInt.push(Math.round(ci)); cumPrn.push(Math.round(cp)); equity.push(Math.round(r.down+cp)); }
+    }
+    charts.main = new Chart(ctx, { type:"line", data:{ labels:years.map(y=>"Yr "+y), datasets:[
+      {label:"Interest Paid (Gone)",data:cumInt,borderColor:"#f05c5c",backgroundColor:"rgba(240,92,92,0.05)",tension:0.3,fill:true,pointRadius:0,borderWidth:2},
+      {label:"Principal Built",data:cumPrn,borderColor:"#7c6af7",backgroundColor:"rgba(124,106,247,0.05)",tension:0.3,fill:true,pointRadius:0,borderWidth:2},
+      {label:"Total Equity",data:years.map((_,i)=>Math.round(r.down+cumPrn[i]+(r.price*Math.pow(1+r.appr_base,i+1)-r.price))),borderColor:"#3dd68c",backgroundColor:"rgba(61,214,140,0.05)",tension:0.3,fill:false,pointRadius:0,borderWidth:2},
+    ]}, options:defaultOptions });
+  }
+  else if (ST.activeChart === "rvsb") {
+    const ownCum=[], rentCum=[];
+    for(let y=1;y<=30;y++){
+      ownCum.push(Math.round(r.totalOwn*12*y));
+      rentCum.push(Math.round(r.rent*12*y*Math.pow(1.035,y/2)));
+    }
+    charts.main = new Chart(ctx, { type:"line", data:{ labels:years.map(y=>"Yr "+y), datasets:[
+      {label:"Total Cost of Owning",data:ownCum,borderColor:"#f05c5c",backgroundColor:"rgba(240,92,92,0.05)",tension:0.3,fill:true,pointRadius:0,borderWidth:2},
+      {label:"Total Cost of Renting (3.5%/yr inflation)",data:rentCum,borderColor:"#3dd68c",backgroundColor:"rgba(61,214,140,0.05)",tension:0.3,fill:true,pointRadius:0,borderWidth:2},
+    ]}, options:defaultOptions });
+  }
+  else if (ST.activeChart === "fxaix") {
+    const fxaixVals=[], equityVals=[];
+    let cumP2=0, bal2=r.loan; const rv2=r.rate/12;
+    for(let y=1;y<=30;y++){
+      fxaixVals.push(Math.round(r.down*Math.pow(1.10,y)));
+      for(let m=0;m<12;m++){ const i=bal2*rv2,p=r.pi-i; cumP2+=p; bal2-=p; }
+      equityVals.push(Math.round(r.down+cumP2+(r.price*Math.pow(1+r.appr_base,y)-r.price)));
+    }
+    charts.main = new Chart(ctx, { type:"line", data:{ labels:years.map(y=>"Yr "+y), datasets:[
+      {label:"Down Payment in FXAIX (10%/yr)",data:fxaixVals,borderColor:"#a594ff",backgroundColor:"rgba(165,148,255,0.05)",tension:0.3,fill:true,pointRadius:0,borderWidth:2},
+      {label:"Home Equity",data:equityVals,borderColor:"#3dd68c",backgroundColor:"rgba(61,214,140,0.05)",tension:0.3,fill:true,pointRadius:0,borderWidth:2},
+    ]}, options:defaultOptions });
+  }
+  else if (ST.activeChart === "monthly") {
+    charts.main = new Chart(ctx, { type:"doughnut", data:{
+      labels:["P&I","Property Tax","Maintenance","Insurance","HOA/PMI"],
+      datasets:[{data:[Math.round(r.pi),Math.round(r.propTax),Math.round(r.maint),Math.round(r.ins),Math.round(r.hoa+r.pmi)],backgroundColor:["#6c3fc5","#c0392b","#b45309","#1e8a4c","#c2410c"],borderColor:"#ffffff",borderWidth:3}]
+    }, options:{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{labels:{color:"#1a1714",font:{family:"Inter, sans-serif",size:13,weight:"500"},padding:20,usePointStyle:true,pointStyleWidth:12}}, tooltip:{backgroundColor:"#1a1714",borderColor:"#e2ddd8",borderWidth:1,titleColor:"#ffffff",bodyColor:"#e5e5e5",callbacks:{label:c=>" "+c.label+": $"+Math.round(c.raw).toLocaleString()+"/mo ("+Math.round(c.raw/r.totalOwn*100)+"%)"}}}} });
+  }
+  else if (ST.activeChart === "scenarios") {
+    const baseVals=[], bearVals=[], bullVals=[];
+    for(let y=1;y<=30;y++){
+      bearVals.push(Math.round(r.price*Math.pow(1.01,y)));
+      baseVals.push(Math.round(r.price*Math.pow(1+r.appr_base,y)));
+      bullVals.push(Math.round(r.price*Math.pow(1.07,y)));
+    }
+    charts.main = new Chart(ctx, { type:"line", data:{ labels:years.map(y=>"Yr "+y), datasets:[
+      {label:"Bear (1%/yr)",data:bearVals,borderColor:"#f05c5c",backgroundColor:"transparent",tension:0.3,pointRadius:0,borderWidth:2,borderDash:[5,5]},
+      {label:"Base ("+pct(r.appr_base)+"/yr)",data:baseVals,borderColor:"#7c6af7",backgroundColor:"rgba(124,106,247,0.05)",tension:0.3,fill:true,pointRadius:0,borderWidth:2},
+      {label:"Bull (7%/yr)",data:bullVals,borderColor:"#3dd68c",backgroundColor:"transparent",tension:0.3,pointRadius:0,borderWidth:2,borderDash:[5,5]},
+    ]}, options:defaultOptions });
+  }
+}
+
+render();
+</script>
+</body>
+</html>
